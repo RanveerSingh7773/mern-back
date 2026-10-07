@@ -32,7 +32,7 @@ app.get('/api', (req, res) => {
 
 // Port
 const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGO_URI;
+const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://rajveer6oct_db_user:m3UEom58l72ZHSJ3@cluster0.ejiawc8.mongodb.net/?appName=Cluster0';
 
 // Connect to MongoDB
 mongoose.connect(MONGO_URI)
