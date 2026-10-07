@@ -7,7 +7,10 @@ const app = express();
 const path = require('path');
 
 // Middleware
-app.use(cors());
+app.use(cors({
+    origin: process.env.FRONTEND_URL || '*',
+    credentials: true,
+}));
 app.use(express.json()); // Parses incoming JSON requests
 
 // Routes
@@ -35,7 +38,7 @@ const MONGO_URI = process.env.MONGO_URI;
 mongoose.connect(MONGO_URI)
     .then(() => {
         console.log('Connected to MongoDB successfully');
-        // Start the server only after connecting to the database
+        
         app.listen(PORT, () => {
             console.log(`Server is running on port ${PORT}`);
         });

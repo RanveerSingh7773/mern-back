@@ -22,6 +22,9 @@ router.post('/login', async (req, res) => {
     }
 });
 
+
+
+
 // @route POST /api/users
 router.post('/', async (req, res) => {
     const { name, email, password } = req.body;
@@ -45,6 +48,8 @@ router.post('/', async (req, res) => {
         res.status(400).json({ message: 'Invalid user data' });
     }
 });
+
+router.post
 
 // @route GET /api/users/profile
 router.get('/profile', protect, async (req, res) => {

@@ -22,15 +22,16 @@ router.get('/:id', async (req, res) => {
 // @route POST /api/products
 // @access Private/Admin
 router.post('/', protect, admin, async (req, res) => {
+    const { name, price, brand, category, description, image, countInStock } = req.body;
     const product = new Product({
-        name: 'Sample Perfume',
-        price: 0,
+        name: name || 'Sample Perfume',
+        price: price || 0,
         user: req.user._id,
-        image: 'https://images.unsplash.com/photo-1523293115678-d29062e08e60?q=80&w=600&auto=format&fit=crop',
-        brand: 'Sample brand',
-        category: 'Perfume',
-        countInStock: 0,
-        description: 'Sample description'
+        image: image || 'https://images.unsplash.com/photo-1523293115678-d29062e08e60?q=80&w=600&auto=format&fit=crop',
+        brand: brand || 'Sample brand',
+        category: category || 'Perfume',
+        countInStock: countInStock !== undefined ? countInStock : 0,
+        description: description || 'Sample description'
     });
     const createdProduct = await product.save();
     res.status(201).json(createdProduct);
@@ -43,13 +44,13 @@ router.put('/:id', protect, admin, async (req, res) => {
     const product = await Product.findById(req.params.id);
 
     if (product) {
-        product.name = name || product.name;
-        product.price = price || product.price;
-        product.description = description || product.description;
-        product.image = image || product.image;
-        product.brand = brand || product.brand;
-        product.category = category || product.category;
-        product.countInStock = countInStock || product.countInStock;
+        product.name = name !== undefined ? name : product.name;
+        product.price = price !== undefined ? price : product.price;
+        product.description = description !== undefined ? description : product.description;
+        product.image = image !== undefined ? image : product.image;
+        product.brand = brand !== undefined ? brand : product.brand;
+        product.category = category !== undefined ? category : product.category;
+        product.countInStock = countInStock !== undefined ? countInStock : product.countInStock;
 
         const updatedProduct = await product.save();
         res.json(updatedProduct);
