@@ -5,8 +5,13 @@ const { protect, admin } = require('../middleware/authMiddleware');
 
 // @route GET /api/products
 router.get('/', async (req, res) => {
-    const products = await Product.find({});
-    res.json(products);
+    try {
+        const products = await Product.find({});
+        res.json(products);
+    } catch (err) {
+        console.error('Products fetch error:', err);
+        res.status(500).json({ message: err.message || 'Error fetching products', details: err.toString() });
+    }
 });
 
 // @route GET /api/products/:id
