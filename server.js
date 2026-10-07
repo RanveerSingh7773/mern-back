@@ -3,17 +3,6 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
-const dns = require('dns');
-
-// Fix DNS resolution for MongoDB SRV records on cloud platforms like Render
-if (dns.setDefaultResultOrder) {
-    dns.setDefaultResultOrder('ipv4first');
-}
-try {
-    dns.setServers(['8.8.8.8', '8.8.4.4', '1.1.1.1']);
-} catch (e) {
-    console.log('DNS setServers notice:', e.message);
-}
 
 const app = express();
 
@@ -38,7 +27,12 @@ app.use('/api/upload', uploadRoutes);
 app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
 
 app.get('/api', (req, res) => {
-    res.status(200).json({ message: 'Welcome to the Lakshaura API!' });
+    const isMongoConnected = mongoose.connection.readyState === 1;
+    res.status(200).json({
+        message: 'Welcome to the Lakshaura API!',
+        databaseConnected: isMongoConnected,
+        dbState: mongoose.connection.readyState
+    });
 });
 
 // Port
@@ -50,9 +44,9 @@ app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
 
-// Connect to MongoDB
+// Connect to MongoDB with timeout settings
 mongoose.connect(MONGO_URI, {
-    family: 4,
+    serverSelectionTimeoutMS: 5000,
 })
     .then(() => {
         console.log('Connected to MongoDB successfully');
