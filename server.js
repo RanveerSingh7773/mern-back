@@ -6,8 +6,11 @@ const path = require('path');
 const dns = require('dns');
 
 // Fix DNS resolution for MongoDB SRV records on cloud platforms like Render
+if (dns.setDefaultResultOrder) {
+    dns.setDefaultResultOrder('ipv4first');
+}
 try {
-    dns.setServers(['8.8.8.8', '8.8.4.4']);
+    dns.setServers(['8.8.8.8', '8.8.4.4', '1.1.1.1']);
 } catch (e) {
     console.log('DNS setServers notice:', e.message);
 }
@@ -48,7 +51,9 @@ app.listen(PORT, () => {
 });
 
 // Connect to MongoDB
-mongoose.connect(MONGO_URI)
+mongoose.connect(MONGO_URI, {
+    family: 4,
+})
     .then(() => {
         console.log('Connected to MongoDB successfully');
     })
