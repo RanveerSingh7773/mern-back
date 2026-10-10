@@ -8,7 +8,12 @@ const { protect } = require('../middleware/authMiddleware');
 router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
-        const user = await User.findOne({ email });
+        if (!email || !password) {
+            return res.status(401).json({ message: 'Invalid email or password' });
+        }
+
+        const normalizedEmail = email.toLowerCase().trim();
+        const user = await User.findOne({ email: normalizedEmail });
 
         if (user && (await user.matchPassword(password))) {
             res.json({
@@ -27,7 +32,7 @@ router.post('/login', async (req, res) => {
 });
 
 // @route POST /api/users (Register)
-router.post('/', async (req, res) => {
+router.post('/register', async (req, res) => {
     try {
         const { name, email, password } = req.body;
         
@@ -35,13 +40,19 @@ router.post('/', async (req, res) => {
             return res.status(400).json({ message: 'Please provide all required fields' });
         }
 
-        const userExists = await User.findOne({ email });
+        const normalizedEmail = email.toLowerCase().trim();
+        // User.exists is much faster than findOne because it only queries the index
+        const userExists = await User.exists({ email: normalizedEmail });
 
         if (userExists) {
             return res.status(400).json({ message: 'User already exists' });
         }
 
-        const user = await User.create({ name, email, password });
+        const user = await User.create({
+            name: name.trim(),
+            email: normalizedEmail,
+            password
+        });
 
         if (user) {
             res.status(201).json({
@@ -49,7 +60,7 @@ router.post('/', async (req, res) => {
                 name: user.name,
                 email: user.email,
                 isAdmin: user.isAdmin,
-                token: generateToken(user._id)
+                message: 'Account created successfully'
             });
         } else {
             res.status(400).json({ message: 'Invalid user data' });

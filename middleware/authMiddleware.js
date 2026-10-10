@@ -10,15 +10,18 @@ const protect = async (req, res, next) => {
             const decoded = jwt.verify(token, process.env.JWT_SECRET || 'lakshaurasecretkey123');
 
             req.user = await User.findById(decoded.id).select('-password');
-            next();
+            if (!req.user) {
+                return res.status(401).json({ message: 'User not found or account removed' });
+            }
+            return next();
         } catch (error) {
-            console.error(error);
-            res.status(401).json({ message: 'Not authorized, token failed' });
+            console.error('Auth error:', error.message);
+            return res.status(401).json({ message: 'Not authorized, token failed' });
         }
     }
 
     if (!token) {
-        res.status(401).json({ message: 'Not authorized, no token' });
+        return res.status(401).json({ message: 'Not authorized, no token' });
     }
 };
 
@@ -31,4 +34,3 @@ const admin = (req, res, next) => {
 };
 
 module.exports = { protect, admin };
-1
