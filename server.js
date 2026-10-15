@@ -37,20 +37,24 @@ app.get('/api', (req, res) => {
 
 // Port
 const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://rajveer6oct_db_user:m3UEom58l72ZHSJ3@cluster0.ejiawc8.mongodb.net/?appName=Cluster0';
+const MONGO_URI = process.env.MONGO_URI;
 
 // Start server immediately so Render port check succeeds
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
 
-// Connect to MongoDB with timeout settings
-mongoose.connect(MONGO_URI, {
-    serverSelectionTimeoutMS: 5000,
-})
-    .then(() => {
-        console.log('Connected to MongoDB successfully');
+// Connect to MongoDB safely via environment variable
+if (!MONGO_URI) {
+    console.error('CRITICAL ERROR: MONGO_URI is not set in environment variables! Please configure MONGO_URI in your .env file or hosting environment variables.');
+} else {
+    mongoose.connect(MONGO_URI, {
+        serverSelectionTimeoutMS: 5000,
     })
-    .catch((error) => {
-        console.error('Error connecting to MongoDB:', error.message);
-    });
+        .then(() => {
+            console.log('Connected to MongoDB successfully');
+        })
+        .catch((error) => {
+            console.error('Error connecting to MongoDB:', error.message);
+        });
+}
